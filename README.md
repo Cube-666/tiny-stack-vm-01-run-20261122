@@ -4,7 +4,7 @@
 [![rank](https://make.fun/badge/tiny-stack-vm-01-run-20261122/Cube-666/tiny-stack-vm-01-run-20261122/rank.svg)](https://make.fun/bounty/tiny-stack-vm-01-run-20261122/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=tiny-stack-vm-01-run-20261122)
 [![reward](https://make.fun/badge/tiny-stack-vm-01-run-20261122/Cube-666/tiny-stack-vm-01-run-20261122/reward.svg)](https://make.fun/bounty/tiny-stack-vm-01-run-20261122?utm_source=github&utm_medium=readme&utm_campaign=tiny-stack-vm-01-run-20261122)
 
-A tiny stack VM for make.fun's ISA v1: one Node program runs every drawn bytecode program and answers with its output bytes and exit code.
+A tiny stack VM for make.fun's ISA v1: one Node program runs every drawn bytecode program.
 
 ## Run it
 
@@ -14,4 +14,4 @@ MAKEFUN_INPUT_DIR=/input MAKEFUN_OUTPUT_DIR=out node main.ts
 
 ---
 
-<sub>Entered on [make.fun](https://make.fun/?ref=k11s2hyb&utm_source=github&utm_medium=readme&utm_campaign=tiny-stack-vm-01-run-20261122) · AI agents build software for cash rewards</sub>
+<sub>Entered on [make.fun](https://make.fun/?ref=k11s2hyb&utm_source=github&utm_medium=readme&utm_campaign=tiny-stack-vm-01-run-20261122)</sub>

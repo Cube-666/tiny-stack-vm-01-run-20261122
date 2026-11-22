@@ -1,21 +1,15 @@
-// Tiny stack VM for make.fun ISA v1: runs every /input/<id>/program.bin on its
-// input.bin, writes /output/<id>/stdout.bin + exit.txt. Traps in ISA.md's order.
+// Tiny stack VM, make.fun ISA v1.
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 const IN = process.env.MAKEFUN_INPUT_DIR ?? '/input';
 const OUT = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 const STEP_MAX = 1000000, OUT_MAX = 65536;
 const META = {
-  0x00: [0, 0, 0], 0x01: [1, 0, 1], 0x02: [4, 0, 1], 0x03: [0, 1, 0],
-  0x04: [0, 1, 2], 0x05: [0, 2, 2], 0x06: [0, 2, 3], 0x07: [0, 3, 3],
-  0x10: [0, 2, 1], 0x11: [0, 2, 1], 0x12: [0, 2, 1], 0x13: [0, 2, 1],
-  0x14: [0, 2, 1], 0x15: [0, 2, 1], 0x16: [0, 2, 1], 0x17: [0, 1, 1],
-  0x18: [0, 2, 1], 0x19: [0, 2, 1], 0x1a: [0, 2, 1], 0x1b: [0, 1, 1],
-  0x1c: [0, 2, 1], 0x1d: [0, 2, 1], 0x1e: [0, 2, 1], 0x20: [0, 2, 1],
-  0x21: [0, 2, 1], 0x22: [0, 2, 1], 0x30: [2, 0, 0], 0x31: [2, 1, 0],
-  0x32: [2, 1, 0], 0x33: [2, 0, 0], 0x34: [0, 0, 0], 0x40: [0, 1, 1],
-  0x41: [0, 2, 0], 0x50: [0, 1, 0], 0x51: [0, 1, 0], 0x52: [0, 0, 1],
-  0x53: [0, 1, 0],
+  0x00: [0, 0, 0], 0x01: [1, 0, 1], 0x02: [4, 0, 1], 0x03: [0, 1, 0], 0x04: [0, 1, 2], 0x05: [0, 2, 2], 0x06: [0, 2, 3], 0x07: [0, 3, 3],
+  0x10: [0, 2, 1], 0x11: [0, 2, 1], 0x12: [0, 2, 1], 0x13: [0, 2, 1], 0x14: [0, 2, 1], 0x15: [0, 2, 1], 0x16: [0, 2, 1], 0x17: [0, 1, 1],
+  0x18: [0, 2, 1], 0x19: [0, 2, 1], 0x1a: [0, 2, 1], 0x1b: [0, 1, 1], 0x1c: [0, 2, 1], 0x1d: [0, 2, 1], 0x1e: [0, 2, 1], 0x20: [0, 2, 1],
+  0x21: [0, 2, 1], 0x22: [0, 2, 1], 0x30: [2, 0, 0], 0x31: [2, 1, 0], 0x32: [2, 1, 0], 0x33: [2, 0, 0], 0x34: [0, 0, 0], 0x40: [0, 1, 1],
+  0x41: [0, 2, 0], 0x50: [0, 1, 0], 0x51: [0, 1, 0], 0x52: [0, 0, 1], 0x53: [0, 1, 0],
 };
 function run(prog, input) {
   const n = prog.length, st = new Int32Array(256), cs = new Int32Array(64);
@@ -28,10 +22,9 @@ function run(prog, input) {
     if (pc < 0 || pc >= n) return done(9);
     const op = prog[pc], meta = META[op];
     if (meta === undefined) return done(5);
-    const imm = meta[0];
-    if (pc + imm >= n) return done(9);
+    if (pc + meta[0] >= n) return done(9);
     steps++;
-    const next = pc + 1 + imm;
+    const next = pc + 1 + meta[0];
     if (sp < meta[1]) return done(2);
     if (sp - meta[1] + meta[2] > 256) return done(3);
     pc = next;
@@ -67,7 +60,7 @@ function run(prog, input) {
             break;
           case 0x15:
             if (b === 0) return done(4);
-            r = Math.floor((a >>> 0) / (b >>> 0)) | 0;
+            r = ((a >>> 0) / (b >>> 0)) | 0;
             break;
           case 0x16:
             if (b === 0) return done(4);
@@ -137,10 +130,8 @@ function run(prog, input) {
   }
 }
 for (const id of readdirSync(IN).sort()) {
-  const progPath = join(IN, id, 'program.bin');
-  if (!existsSync(progPath)) continue;
-  const inPath = join(IN, id, 'input.bin');
-  const [stdout, exit] = run(readFileSync(progPath), existsSync(inPath) ? readFileSync(inPath) : Buffer.alloc(0));
+  if (!existsSync(join(IN, id, 'program.bin'))) continue;
+  const [stdout, exit] = run(readFileSync(join(IN, id, 'program.bin')), existsSync(join(IN, id, 'input.bin')) ? readFileSync(join(IN, id, 'input.bin')) : Buffer.alloc(0));
   mkdirSync(join(OUT, id), { recursive: true });
   writeFileSync(join(OUT, id, 'stdout.bin'), stdout);
   writeFileSync(join(OUT, id, 'exit.txt'), String(exit) + '\n');
